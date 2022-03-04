@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kathy Wang</title>
+    <link>/</link>
+    <description>Recent content on Kathy Wang</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Thu, 10 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Python Demonstration</title>
+      <link>/post/2020/12/10/python-demonstration/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/10/python-demonstration/</guid>
+      <description>Let&#39;s explore Python! Python can use regex to pull specific parts of strings. Here, we pull all the IP addresses from &#39;string1.&#39;
+import re string1=&amp;quot;Jan 13 00:48:59: DROP service 68-&amp;gt;67(udp) from 213.92.153.167 to 69.43.107.219, prefix: \&amp;quot;spoof iana-0/8\&amp;quot; \ (in: eth0 69.43.112.233(38:f8:b7:90:45:92):68 -&amp;gt; 217.70.100.113(00:21:87:79:9c:d9):67 UDP len:576 ttl:64) \ Jan 13 12:02:48: ACCEPT service dns from 74.125.186.208 to firewall(pub-nic-dns), prefix: \&amp;quot;none\&amp;quot; \ (in: eth0 74.125.186.208(00:1a:e3:52:5d:8e):36008 -&amp;gt; 140.105.63.158(00:1a:9a:86:2e:62):53 UDP len:82 ttl:38) \ Jan 13 17:44:52: DROP service 68-&amp;gt;67(udp) from 172.</description>
+    </item>
+    
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Kathy Wang, kw28672 0. Introduction This project explores data from the Austin Animal Shelter from 2017-2019. The Austin Animal Center Shelter dataset was obtained by the Austin government&#39;s data portal (data.austintexas.gov), and contains the &amp;quot;outcomes of animals&amp;quot;(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included. The entire dataset had 121,190 observations, but has been lessened down to 18,066 observations to only include animal outcomes from 2017-2019.</description>
+    </item>
+    
+    <item>
+      <title>Project 1</title>
+      <link>/project/project1/</link>
+      <pubDate>Sat, 17 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Kathy Wang, kw28672 0. Introduction For this project the datasets that will be explored contain data for the Austin Animal Center Shelter and the cases and fatalities by COVID-19 in Texas. The Austin Animal Center Shelter dataset was obtained by the Austin government&#39;s data portal (data.austintexas.gov), and contains the &amp;quot;outcomes of animals&amp;quot;(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included.</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/</guid>
+      <description> Recent coding projects:
+ Wrangling &amp;amp; Exploratory Data Analysis
+ Modeling, Inference, Prediction
+  -- </description>
+    </item>
+    
+    <item>
+      <title>Resume</title>
+      <link>/resume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/</guid>
+      <description>    </description>
+    </item>
+    
+  </channel>
+</rss>
