@@ -1,0 +1,58 @@
+#About{
+   color: #1e8eb7;
+   padding-left: 50px
+}
+.names{
+    color: #1e8eb7;
+    text-align: right;
+    padding-right: 100px;
+ }
+
+     
+
+ .column {
+    float: left;
+    width: 50%;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #1e8eb7;
+  }
+  
+  /* Clear floats after the columns */
+  .row_contact:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  button{
+      background-color: #1e8eb7;
+      color: white
+  }
+  #button1{
+      background-color: #1e8eb7;
+      color: white
+  }
+  textarea{
+      border-color:  #1e8eb7;
+      border: solid;
+      text-align: left;
+      color: #1e8eb7;
+      height: 200px;
+      width: 300px;
+  }
+  .put{
+    
+    border-color: #1e8eb7;
+    border: solid;
+      color: #1e8eb7
+
+  }
+  .inside {
+    
+    display: inline-block;
+    
+  }
+
+
+  

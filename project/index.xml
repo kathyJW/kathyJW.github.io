@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Kathy Wang</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Kathy Wang</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Wed, 25 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Kathy Wang, kw28672 0. Introduction This project explores data from the Austin Animal Shelter from 2017-2019. The Austin Animal Center Shelter dataset was obtained by the Austin government&#39;s data portal (data.austintexas.gov), and contains the &amp;quot;outcomes of animals&amp;quot;(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included. The entire dataset had 121,190 observations, but has been lessened down to 18,066 observations to only include animal outcomes from 2017-2019.</description>
+    </item>
+    
+    <item>
+      <title>Project 1</title>
+      <link>/project/project1/</link>
+      <pubDate>Sat, 17 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Kathy Wang, kw28672 0. Introduction For this project the datasets that will be explored contain data for the Austin Animal Center Shelter and the cases and fatalities by COVID-19 in Texas. The Austin Animal Center Shelter dataset was obtained by the Austin government&#39;s data portal (data.austintexas.gov), and contains the &amp;quot;outcomes of animals&amp;quot;(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included.</description>
+    </item>
+    
+  </channel>
+</rss>

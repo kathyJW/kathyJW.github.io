@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Kathy Wang" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         October 17, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="kathy-wang-kw28672" class="section level2">
+<h2>Kathy Wang</h2>
+<div id="introduction" class="section level3">
+<h3>0. Introduction</h3>
+<p>For this project the datasets that will be explored contain data for the Austin Animal Center Shelter and the cases and fatalities by COVID-19 in Texas. The Austin Animal Center Shelter dataset was obtained by the Austin government's data portal (data.austintexas.gov), and contains the &quot;outcomes of animals&quot;(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included. The COVID-19 datasets was obtained by the Texas Department of State Health Services (dshs.texas.gov) and includes all of the Texas counties and the number of cases and fatalities in each county by COVID-19 overtime (by day).</p>
+<p>I chose these datasets to see if the pandemic and the quarantine had an effect on the adoptions of animals from the shelter in any way. COVID-19 data in Travis County will be the focus in this project, as the Austin Animal Center Shelter is mainly focused in that county. I expect that there may be an increase in the number of animals adopted and perhaps less discretion in the age of the animal adopted as the quarantine went on. People are at home and may desire a companion more than before the quarantine, and I want to see if these datasets can offer some insight to that.</p>
+</div>
+<div id="tidying" class="section level3">
+<h3>1. Tidying</h3>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.1
+## ✓ tidyr   1.1.1     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>options(dplyr.summarise.inform = FALSE)
+
+#Load in datasets.
+shelter_all &lt;- read.csv(&quot;https://drive.google.com/uc?export=download&amp;id=1278cBre_l36-M_WUj8Bd66xrUywn-E0b&quot;)
+case_all &lt;-  read.csv(&quot;https://drive.google.com/uc?export=download&amp;id=1bPA8x057sCMny5p4aon1Y1f9KP6hRZvj&quot;)
+fatality_all &lt;- read.csv(&quot;https://drive.google.com/uc?export=download&amp;id=1IOHv2xxsxXODJ7C2uYyWFWIH0xFyQ5Qt&quot;)</code></pre>
+<pre class="r"><code>#Tidy the case dataset so that it shows only the cases in Travis county, by month and day.
+case&lt;- case_all %&gt;% filter(County.Name==&quot;Travis&quot;)
+
+case&lt;- case %&gt;%pivot_longer(contains(&quot;Cases&quot;), names_to=&quot;date&quot;, values_to=&quot;cases&quot;) %&gt;% separate(date, into=c(&quot;type&quot;,&quot;month&quot;,&quot;day&quot;), convert=T)%&gt;% select(-(&quot;type&quot;)) </code></pre>
+<pre><code>## Warning: Expected 3 pieces. Additional pieces discarded in 1 rows [131].</code></pre>
+<pre class="r"><code>#Tidy the fatality dataset so that it shows only the fatalities in Travis county, by month and day.
+fatality&lt;- fatality_all %&gt;% filter(County.Name==&quot;TRAVIS&quot;)
+
+fatality&lt;- fatality %&gt;%pivot_longer(contains(&quot;Fatalities&quot;), names_to=&quot;date&quot;, values_to=&quot;fatalities&quot;)%&gt;% separate(date, into=c(&quot;type&quot;,&quot;month&quot;,&quot;day&quot;), convert=T)%&gt;% select(-(&quot;type&quot;)) 
+
+
+glimpse(case)</code></pre>
+<pre><code>## Rows: 219
+## Columns: 4
+## $ County.Name &lt;fct&gt; Travis, Travis, Travis, Travis, Travis, Travis, Travis, T…
+## $ month       &lt;int&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, …
+## $ day         &lt;int&gt; 4, 5, 6, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 2…
+## $ cases       &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 4, 7, 21, 22, 22, 22, 79…</code></pre>
+<pre class="r"><code>glimpse(fatality)</code></pre>
+<pre><code>## Rows: 218
+## Columns: 4
+## $ County.Name &lt;fct&gt; TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, T…
+## $ month       &lt;int&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, …
+## $ day         &lt;int&gt; 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, …
+## $ fatalities  &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …</code></pre>
+<p>Dataset with the number of COVID cases in Texas was filtered to only have the cases in Travis County, which includes Austin and the Austin animal shelter. The columns were originally organized by each day and how many cases, so these were pivoted all into two columns representing the month and day. These same changes were applied to the dataset with the fatalities as it also had a similar initial format. The warning of &quot;Expected 3 pieces.Additional pieces discarded in 1 rows [131]&quot; can be ignored here, as that particular observation had an extra value not needed here.</p>
+<pre class="r"><code>#Tidy the shelter dataset. Drop the MonthYear column because it is a duplicate of DateTime. 
+#Remove all animals whose outcome was before 2019.
+shelter&lt;- shelter_all %&gt;%separate(DateTime, into= c(&quot;date&quot;, &quot;time&quot;, &quot;type&quot;), sep=&quot; &quot;)  %&gt;% select(-c(MonthYear, time, type)) %&gt;% separate(date, into=c(&quot;month&quot;, &quot;day&quot;,&quot;year&quot;), convert=T) %&gt;%filter(year==c(2019,2020)) %&gt;%arrange(year, month, day)
+
+#adjust the age column so that it shows only by months old. Needs different calculation for day and year observations. Used 30 days for a month.
+shelter&lt;-shelter %&gt;% separate(Age.upon.Outcome, into=c(&quot;age&quot;,&quot;type&quot;)) </code></pre>
+<pre><code>## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 1 rows [13613].</code></pre>
+<pre class="r"><code>shelter$age= as.double(shelter$age)</code></pre>
+<pre><code>## Warning: NAs introduced by coercion</code></pre>
+<pre class="r"><code>shelter&lt;- shelter%&gt;%mutate (age= ifelse(type==&quot;year&quot;|type==&quot;years&quot;, age*12, age)) %&gt;% mutate (age= ifelse(type==&quot;day&quot;|type==&quot;days&quot;, age/30, age)) %&gt;% mutate (age= ifelse(type==&quot;week&quot;|type==&quot;weeks&quot;, age/4, age)) %&gt;%select(-(&quot;type&quot;))
+
+glimpse(shelter)</code></pre>
+<pre><code>## Rows: 13,659
+## Columns: 13
+## $ Animal.ID        &lt;fct&gt; A786743, A786759, A786757, A786634, A771004, A786477…
+## $ Name             &lt;fct&gt; Mia, Calypso, , , Dippy, , , Coco, Frank, , Emily, ,…
+## $ month            &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+## $ day              &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2…
+## $ year             &lt;int&gt; 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019…
+## $ Date.of.Birth    &lt;fct&gt; 12/31/2016, 01/01/2014, 12/31/2017, 02/28/2018, 04/2…
+## $ Outcome.Type     &lt;fct&gt; Return to Owner, Return to Owner, Euthanasia, Transf…
+## $ Outcome.Subtype  &lt;fct&gt; , , Rabies Risk, Snr, , Snr, Partner, , , , , Partne…
+## $ Animal.Type      &lt;fct&gt; Dog, Dog, Other, Cat, Dog, Cat, Cat, Dog, Dog, Dog, …
+## $ Sex.upon.Outcome &lt;fct&gt; Intact Female, Spayed Female, Unknown, Intact Female…
+## $ age              &lt;dbl&gt; 24, 60, 12, 10, 84, 12, 24, 24, 11, 2, 168, 4, 8, 16…
+## $ Breed            &lt;fct&gt; German Shepherd Mix, Border Collie/German Shepherd, …
+## $ Color            &lt;fct&gt; Brown/Tan, Black/Brown, Brown, Tortie, Black/Brown, …</code></pre>
+<p>The dataset with each animal in the shelter that had an outcome was tidied to only include animal observations from 2019 and onwards (up to October 11, 2020). This was to compare the shelter data from before the COVID outbreak had hit. The date of outcome variable was seperated and the time of day value dropped (it was not of interest here). It was then redefined into month and day of outcome. The age of the animal was adjusted to be in months units for all observations. NA values appeared for 1 animal that did not have age listed, and they were kept in the data because the date of their outcome was also of interest.</p>
+</div>
+<div id="joining" class="section level3">
+<h3>2. Joining</h3>
+<pre class="r"><code>#Join all 3 datasets by date and drop county name duplicates.
+
+temp&lt;- fatality %&gt;%full_join(case, by=c(&quot;month&quot;,&quot;day&quot;)) %&gt;% select(-(&quot;County.Name.y&quot;)) %&gt;% rename(county=County.Name.x)
+
+#Must add 2020 year to temp since there is data in the shelter dataset in yr 2019, and needs to join.
+temp[&quot;year&quot;]&lt;-2020
+full_animal&lt;- shelter %&gt;% full_join(temp, by=c(&quot;month&quot;,&quot;day&quot;,&quot;year&quot;)) 
+
+#Set all NA values in cases and fatilities to 0 and TRAVIS county.
+full_animal$fatalities[is.na(full_animal$fatalities)]&lt;-0
+full_animal$cases[is.na(full_animal$cases)] &lt;-0
+full_animal$county[is.na(full_animal$county)]&lt;- &quot;TRAVIS&quot;
+
+glimpse(full_animal)</code></pre>
+<pre><code>## Rows: 13,660
+## Columns: 16
+## $ Animal.ID        &lt;fct&gt; A786743, A786759, A786757, A786634, A771004, A786477…
+## $ Name             &lt;fct&gt; Mia, Calypso, , , Dippy, , , Coco, Frank, , Emily, ,…
+## $ month            &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+## $ day              &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2…
+## $ year             &lt;dbl&gt; 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019…
+## $ Date.of.Birth    &lt;fct&gt; 12/31/2016, 01/01/2014, 12/31/2017, 02/28/2018, 04/2…
+## $ Outcome.Type     &lt;fct&gt; Return to Owner, Return to Owner, Euthanasia, Transf…
+## $ Outcome.Subtype  &lt;fct&gt; , , Rabies Risk, Snr, , Snr, Partner, , , , , Partne…
+## $ Animal.Type      &lt;fct&gt; Dog, Dog, Other, Cat, Dog, Cat, Cat, Dog, Dog, Dog, …
+## $ Sex.upon.Outcome &lt;fct&gt; Intact Female, Spayed Female, Unknown, Intact Female…
+## $ age              &lt;dbl&gt; 24, 60, 12, 10, 84, 12, 24, 24, 11, 2, 168, 4, 8, 16…
+## $ Breed            &lt;fct&gt; German Shepherd Mix, Border Collie/German Shepherd, …
+## $ Color            &lt;fct&gt; Brown/Tan, Black/Brown, Brown, Tortie, Black/Brown, …
+## $ county           &lt;fct&gt; TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAV…
+## $ fatalities       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+## $ cases            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
+<p>The time variables of &quot;month&quot;, &quot;date&quot;, and &quot;year&quot; were the common variables used to join all three datasets. I decided to perform a full join on this data in order to retain all the rows from both sets after joining, because there may be some days that are missing from the COVID-19 data. The month is still of interest, so even if a day is missing the month of the animal observations and the COVID data can still be used. The COVID data also only starts from March, but the animal shelter data has been adjusted to begin from January 2019. This will give some insight to what the adoptions were like before Covid had hit. Since both the fatailities and cases datasets had the county name column, one of these duplicate columns was dropped in the final dataset. Initially there were 219 observations in cases, 218 observations in fatalities, and 13660 observations in the animal shelter dataset. In the final joined dataset there are 13660 observations, since the animal dataset had the largest number of observations and all NA values were kept. A concern of this is that for the days missing in the fatalities and cases datasets, those animals may not be accounted for through this join and their values for those cases or fatalities will be set to 0. In data summarization and analysis of the shelter data in relation to COVID, these specific observations will have to be ignored as it cannot be ascertained the exact number of cases or fatalities on the few days missing.</p>
+</div>
+<div id="wrangling" class="section level3">
+<h3>3. Wrangling</h3>
+<pre class="r"><code>#The number of animals that were adopted each month from January 2019 to October 11, 2020. 
+full_animal %&gt;% filter(Outcome.Type == &quot;Adoption&quot;) %&gt;%group_by(year, month) %&gt;%summarize(number_adopted=length(month))%&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 22
+## Columns: 3
+## Groups: year [2]
+## $ year           &lt;dbl&gt; 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019, …
+## $ month          &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, …
+## $ number_adopted &lt;int&gt; 381, 275, 335, 261, 377, 492, 434, 504, 411, 399, 398,…</code></pre>
+<pre class="r"><code>#Orders the animals in order of cases of COVID in Travis County, descending order. Takes all animals in the shelter after 200 fatailities from COVID were reached and returns the age of them.
+full_animal %&gt;% arrange (desc(cases)) %&gt;% filter(fatalities&gt;200) %&gt;% select(age) %&gt;%na.omit %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 1,142
+## Columns: 1
+## $ age &lt;dbl&gt; 24, 84, 96, 2, 24, 36, 1, 2, 2, 2, 36, 12, 48, 3, 2, 1, 2, 12, 24…</code></pre>
+<pre class="r"><code>#Uses mutate() to create a categorical variable identifying which animals were adopted after COVID quarantine(3/04). This will also help identify animals that were obviously adopted after 3/4/2020 but there isnt case/fatality data available for them.
+full_animal&lt;- full_animal %&gt;% mutate (in_quarantine= ifelse(month&gt;=3 &amp; day&gt;=4 &amp; year==2020, &quot;yes&quot;, &quot;no&quot;)) 
+full_animal%&gt;%select(Animal.ID, in_quarantine)%&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 13,660
+## Columns: 2
+## $ Animal.ID     &lt;fct&gt; A786743, A786759, A786757, A786634, A771004, A786477, A…
+## $ in_quarantine &lt;chr&gt; &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;…</code></pre>
+<pre class="r"><code>#Summary statistics of age.
+mean_age&lt;-full_animal %&gt;% summarize(mean_age = mean(age,na.rm=T))
+sd_age&lt;-full_animal %&gt;% summarize(sd_age= sd(age,na.rm=T))
+max_age&lt;-full_animal %&gt;% summarize(max_age = max(age,na.rm=T))
+min_age&lt;-full_animal %&gt;% filter( age!=0) %&gt;% summarize(min_age = min(age,na.rm=T))
+summary_age&lt;- data.frame(mean_age, sd_age, max_age, min_age)
+summary_age</code></pre>
+<pre><code>##   mean_age   sd_age max_age    min_age
+## 1 23.93273 33.62944     276 0.03333333</code></pre>
+<pre class="r"><code>full_animal %&gt;% group_by(Outcome.Type) %&gt;%summarize(mean(age,na.rm=T))</code></pre>
+<pre><code>## # A tibble: 11 x 2
+##    Outcome.Type      `mean(age, na.rm = T)`
+##    &lt;fct&gt;                              &lt;dbl&gt;
+##  1 &quot;&quot;                                  12  
+##  2 &quot;Adoption&quot;                          19.9
+##  3 &quot;Died&quot;                              17.4
+##  4 &quot;Disposal&quot;                          19.2
+##  5 &quot;Euthanasia&quot;                        27.4
+##  6 &quot;Missing&quot;                           21.9
+##  7 &quot;Relocate&quot;                          24  
+##  8 &quot;Return to Owner&quot;                   44.9
+##  9 &quot;Rto-Adopt&quot;                         43.0
+## 10 &quot;Transfer&quot;                          18.8
+## 11  &lt;NA&gt;                              NaN</code></pre>
+<pre class="r"><code>full_animal %&gt;% group_by(in_quarantine) %&gt;%summarize(mean(age,na.rm=T))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   in_quarantine `mean(age, na.rm = T)`
+##   &lt;chr&gt;                          &lt;dbl&gt;
+## 1 no                              23.9
+## 2 yes                             23.9</code></pre>
+<pre class="r"><code>full_animal %&gt;% group_by(Outcome.Type==&quot;Adoption&quot;, in_quarantine) %&gt;%summarize(mean(age,na.rm=T)) %&gt;%na.omit</code></pre>
+<pre><code>## # A tibble: 4 x 3
+## # Groups:   Outcome.Type == &quot;Adoption&quot; [2]
+##   `Outcome.Type == &quot;Adoption&quot;` in_quarantine `mean(age, na.rm = T)`
+##   &lt;lgl&gt;                        &lt;chr&gt;                          &lt;dbl&gt;
+## 1 FALSE                        no                              27.8
+## 2 FALSE                        yes                             26.5
+## 3 TRUE                         no                              19.7
+## 4 TRUE                         yes                             21.0</code></pre>
+<pre class="r"><code>#Summary statistics of fatalities and cases.
+
+max_cases&lt;-full_animal %&gt;% summarize(max_cases= max(cases))
+max_fatal&lt;-full_animal %&gt;% summarize(max_fatal= max(fatalities))
+
+correlation&lt;- full_animal%&gt;%summarize(correlation=cor(cases,fatalities))
+
+summary_covid&lt;- data.frame(max_cases, max_fatal, correlation)
+summary_covid</code></pre>
+<pre><code>##   max_cases max_fatal correlation
+## 1     30199       433   0.9952606</code></pre>
+<pre class="r"><code>full_animal %&gt;%group_by(year, month) %&gt;%summarize(max_cases=max(cases))</code></pre>
+<pre><code>## # A tibble: 22 x 3
+## # Groups:   year [2]
+##     year month max_cases
+##    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;
+##  1  2019     1         0
+##  2  2019     2         0
+##  3  2019     3         0
+##  4  2019     4         0
+##  5  2019     5         0
+##  6  2019     6         0
+##  7  2019     7         0
+##  8  2019     8         0
+##  9  2019     9         0
+## 10  2019    10         0
+## # … with 12 more rows</code></pre>
+<pre class="r"><code>full_animal %&gt;%group_by(year, month) %&gt;%summarize(max_fatalities=max(fatalities))</code></pre>
+<pre><code>## # A tibble: 22 x 3
+## # Groups:   year [2]
+##     year month max_fatalities
+##    &lt;dbl&gt; &lt;int&gt;          &lt;dbl&gt;
+##  1  2019     1              0
+##  2  2019     2              0
+##  3  2019     3              0
+##  4  2019     4              0
+##  5  2019     5              0
+##  6  2019     6              0
+##  7  2019     7              0
+##  8  2019     8              0
+##  9  2019     9              0
+## 10  2019    10              0
+## # … with 12 more rows</code></pre>
+<pre class="r"><code>#Calculate the correlation between the number of animals adopted during the quarantine versus the number of max cases in the same month.
+full_animal %&gt;% filter(Outcome.Type == &quot;Adoption&quot;, in_quarantine==&quot;yes&quot;) %&gt;%group_by(year, month) %&gt;%summarize(number_adopted=length(month), max_cases=max(cases)) %&gt;%summarize(correlation_adopted=cor(number_adopted, max_cases)) </code></pre>
+<pre><code>## # A tibble: 1 x 2
+##    year correlation_adopted
+##   &lt;dbl&gt;               &lt;dbl&gt;
+## 1  2020               0.241</code></pre>
+<pre class="r"><code>#Calculate days since cases started to be reported in Texas (March 4, 2020)
+full_animal&lt;-full_animal%&gt;%mutate (days_covid= ifelse(month&gt;=3 &amp; year==2020, (((month-3)*30-4)+day), 0))%&gt;%mutate (days_covid= ifelse(days_covid&lt;0, 0, days_covid))
+
+#Creates a variable for keeping track of the cumulative number of adoptions per month in 2020
+adjust_animal&lt;- full_animal %&gt;% filter(Outcome.Type == &quot;Adoption&quot;, year==2020) %&gt;%group_by(year, month) %&gt;%mutate(number_adopted=row_number(month))
+#variable for keeping track of adoptions in the month
+adjust_animal&lt;- adjust_animal %&gt;% mutate(total_number_adopted=n())
+
+
+glimpse(adjust_animal)</code></pre>
+<pre><code>## Rows: 1,794
+## Columns: 20
+## Groups: year, month [10]
+## $ Animal.ID            &lt;fct&gt; A787254, A808609, A811101, A807487, A811123, A81…
+## $ Name                 &lt;fct&gt; *Lacey, , , , , Koda, Ramey, , Ruby, Khayli, *Hu…
+## $ month                &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+## $ day                  &lt;int&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, …
+## $ year                 &lt;dbl&gt; 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, …
+## $ Date.of.Birth        &lt;fct&gt; 01/07/2019, 10/07/2019, 10/27/2019, 09/24/2019, …
+## $ Outcome.Type         &lt;fct&gt; Adoption, Adoption, Adoption, Adoption, Adoption…
+## $ Outcome.Subtype      &lt;fct&gt; , Foster, , Foster, , , , Foster, , , , , , , , …
+## $ Animal.Type          &lt;fct&gt; Dog, Cat, Dog, Cat, Dog, Dog, Cat, Cat, Dog, Cat…
+## $ Sex.upon.Outcome     &lt;fct&gt; Spayed Female, Spayed Female, Spayed Female, Neu…
+## $ age                  &lt;dbl&gt; 11, 2, 2, 3, 24, 60, 2, 3, 12, 12, 36, 24, 2, 8,…
+## $ Breed                &lt;fct&gt; Labrador Retriever Mix, Domestic Shorthair, Aust…
+## $ Color                &lt;fct&gt; Black/White, Tortie, Tan/Red Merle, Black/White,…
+## $ county               &lt;fct&gt; TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, TRAVIS, …
+## $ fatalities           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ cases                &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ in_quarantine        &lt;chr&gt; &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, …
+## $ days_covid           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ number_adopted       &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1…
+## $ total_number_adopted &lt;int&gt; 306, 306, 306, 306, 306, 306, 306, 306, 306, 306…</code></pre>
+<p>Looking at the summary statistics, it can be observed that in 2019 the shelter adoption numbers were overall higher each month compared to all of 2020 so far. The average age of animals and their outcomes summarized by mean of &quot;Outcome.Type&quot; reveal that animals who were euthanized, relocated, returned to owner, or &quot;Rto-Adopt&quot; had greater mean ages than those adopted or who died. The mean age of animals who had an outcome in 2019 and 2020 had a mean age of 23.93273 months with standard deviation of 33.62944 months. Max age was 276 months and minimum age was 0.033333 months. The max number of COVID cases in Travis County from March 4, 2020 to October 11, 2020 reached 30199 cases and had 433 fatalities. The correlation between the cases and the fatalities was about 0.9953, which is a strong relation. The correlation between the number of COVID cases in a month and the number of adoptions in the same month was 0.2406, which is a weak relation.</p>
+<p>A categorical variable called &quot;in_quarantine&quot; was created to better label which animals were adopted after the COVID cases started appearing in Texas (March 4, 2020). When the mean age of animals that had an outcome in the shelter before quarantine were compared to that of those after, the average age was very similar at about 23.93700 months compared to 23.91125 months. However, when this data was further subsetted into whether or not the animal was adopted, the animals that were not adopted had a greater mean age than those that were for both before and after the quarantine. The mean age of animals adopted after quarantine was slightly higher than those from before, with an average 19.72727 months age for animals adopted before the quarantine compared to 20.97531 months for after.</p>
+</div>
+<div id="visualizing" class="section level3">
+<h3>4. Visualizing</h3>
+<pre class="r"><code>#Heatmap
+#Must take off observations from before March 2020, as we are interested in the correlations for the quarantine period. Dataset has been grouped to specifically adoption outcomes for this heatmap.
+cormat&lt;- adjust_animal %&gt;% ungroup() %&gt;% filter(month&gt;=3) %&gt;% select_if(is.numeric) %&gt;% select(-year) %&gt;% cor(use=&quot;pair&quot;)
+tidycor&lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% pivot_longer(-1,names_to=&quot;var2&quot;,values_to=&quot;correlation&quot;) 
+
+tidycor</code></pre>
+<pre><code>## # A tibble: 64 x 3
+##    var1  var2                 correlation
+##    &lt;chr&gt; &lt;chr&gt;                      &lt;dbl&gt;
+##  1 month month                     1     
+##  2 month day                       0.0762
+##  3 month age                      -0.0130
+##  4 month fatalities                0.953 
+##  5 month cases                     0.953 
+##  6 month days_covid                0.992 
+##  7 month number_adopted            0.113 
+##  8 month total_number_adopted      0.255 
+##  9 day   month                     0.0762
+## 10 day   day                       1     
+## # … with 54 more rows</code></pre>
+<pre class="r"><code>tidycor%&gt;%ggplot(aes(var1,var2,fill=correlation))+
+geom_tile()+
+scale_fill_gradient2(low=&quot;red&quot;,mid=&quot;white&quot;,high=&quot;blue&quot;)+ #makes colors!
+geom_text(aes(label=round(correlation,2)),color = &quot;black&quot;, size = 4)+ #overlay values
+theme(axis.text.x = element_text(angle = 90, hjust=1))+ #flips x-axis labels
+coord_fixed() +ggtitle(&quot;Heatmap of Animal Adoptions and COVID data in 2020&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>For this heatmap and the plots after this, the &quot;full_animal&quot; dataset has been filtered into &quot;adjust_animal&quot; to include only the animals that were adopted from the shelter in 2020.The heatmap indicates that the strongest correlations of the COVID cases are with the fatalities and month variables. The age of the animals that were adopted has overall very weak correlation with any of the other variables. The strongest correlations concern the COVID data variables and the month variable. The total number of animals adopted in a month has the next greatest correlations with the fatalities and cases of COVID at around 0.43. When it is compared by the number of animals adopted by day (number_adopted) rather than summed up by the entire month (total_number_adopted), the correlation is only about 0.22, which is weak. The &quot;days_covid&quot; variable which sums the number of days since COVID started has a weak correlation with the number of animals adopted as well, at about 0.22.</p>
+<pre class="r"><code>#ggplot1: Bar graph displaying average ages of animals and their outcomes in 2020
+full_animal %&gt;% filter(year==2020, Outcome.Type!=&quot;&quot;)%&gt;% na.omit %&gt;% ggplot( aes(month, age,  fill=Outcome.Type))+geom_bar( aes(y=age), stat=&quot;summary&quot;, fun=mean, position=&#39;fill&#39;) + 
+  geom_col(position = &quot;dodge&quot;)+ scale_x_continuous(breaks=seq(0:12))+ scale_y_continuous(breaks=seq(0,300, 50))+ggtitle(&quot;Average Age and the Outcome of Animals in the Shelter in 2020&quot;) +ylab(&quot;Avg Age of Animal (months)&quot;) + xlab(&quot;Month&quot;)+ scale_fill_brewer(palette = &quot;GnBu&quot;) + labs(fill=&#39;Outcome&#39;) + theme_dark()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>This plot visualizes the average age of each animal per month and their outcomes from the shelter in 2020, up to October. The max mean can be seen in August, where the greatest average age of the animal was above 250 months old and was in the euthanasia category. Animals that are euthanized are usually either too old or sick, so this is not particularly surprising. The youngest animals (&lt;50 months old) appear to have been in the &quot;Died&quot; category, which could be due to complications at birth or being too weak at a young age. The animals that are adopted seem to vary in their ages throughout 2020, and the animals adopted were older on average in August. At a glance, it appears that after the summer months, there is an average of older animals in August before it decreases in Fall. Conclusions cannot be drawn completely from October, since the month has not completed yet up to the date of this project.</p>
+<pre class="r"><code>#ggplot2: 
+adjust_animal %&gt;% na.omit %&gt;% ggplot( aes(days_covid, cases))+ geom_point(size=3,aes(color=total_number_adopted))+ scale_color_gradient(low=&quot;yellow&quot;, high=&quot;red&quot;) + ggtitle(&quot;COVID Cases and the Number of Animals Adopted in 2020&quot;)+ylab(&quot;Number of COVID Cases&quot;) + xlab(&quot;Days since COVID Cases in TX Began&quot;) + labs(colour = &quot;Total Number Adopted in a Month&quot;) </code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>The plot displays the number of COVID cases plotted against the days since the cases began. The points are colored by the number of animals that are adopted in total by the end of the month, so the color is sectioned off by month. Right before COVID, the number of animals adopted was about 230. Once COVID started in March, there was a sharp drop in animals adopted, with less than 100 animals adopted per month. This is most likely due to the shelter restricting the amount of adoptions, by limiting appointments. According to their website (https://www.austintexas.gov/austin-animal-center), they placed appointments to help put quarantine in place and limit the spread of COVID. However, once the summer progresses, the number of adoptions rise even though the COVID cases are exponentially increasing. In the fall, it reaches numbers of adoptions even higher than those in January and February. This could be due to the shelter having limited space for keeping animals, and they had to increase appointments despite the spread of COVID getting worse. It could also be that being in quarantine for months has made more people want to adopt an animal. The yellow at the end indicating less than 100 adoptions can be disregarded here as that represents October, and the month's data has not been completed yet at this time.</p>
+<pre class="r"><code>##ggplot3: compare to ggplot2, 2019 data
+full_animal %&gt;% filter(year==2019, Outcome.Type == &quot;Adoption&quot;) %&gt;% group_by(year, month)  %&gt;% mutate(total_number_adopted=n())%&gt;% ggplot( aes(month, total_number_adopted)) + geom_bar(stat=&quot;summary&quot;, fun=mean)+ scale_y_continuous(breaks=seq(0,600,50), expand = c(0, 0), limits = c(0, 600)) +scale_x_continuous(breaks=seq(0:12))+ylab(&quot;Total Number of Animals Adopted&quot;) +xlab(&quot;Month&quot;)  + ggtitle(&quot;Number of Animals Adopted in 2019&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>This plot displays the number of adoptions in 2019 by month. This is for comparison to the previous plot, to show how the number of adoptions were much greater than they are in 2020. The max number of adoptions here reached above 500 in August, while the greatest number of adoptions in 2020 has barely reached 300. Even the months with the lowest number of adoptions in 2019 were still greater than those in 2020, and never going below 100. COVID and the quarantine restrictions have had an impact on people adopting animals, initially driving down the number of adoptions.</p>
+</div>
+<div id="dimensionality-reduction" class="section level3">
+<h3>5. Dimensionality Reduction</h3>
+<pre class="r"><code>library(cluster)
+#Use days covid, cases, fatalities, age, total_number adopted from 2020 quarantine.
+
+pam_dat&lt;- adjust_animal %&gt;% filter(month&gt;=3, month&lt;10)%&gt;% ungroup() %&gt;% select(days_covid, cases, fatalities, age, number_adopted, total_number_adopted)
+
+sil_width&lt;-vector()
+for(i in 2:10){
+  pam_fit &lt;- pam(pam_dat, k = i)
+  sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<pre><code>## Warning: Removed 1 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>The greatest silhouette_width appears to be at k=2, where the plot point is highest. This means that at k=2, the points are assigned to their clusters better than at other k values. Thus, k=2 will be used for the cluster analysis. Only the variables of covid, cases, fatalities, age, and total_number were used here because they were of greatest interest. Because the month of October 2020 does not have complete data at this time, it has been removed for the PAM analysis.</p>
+<pre class="r"><code>#Cluster analysis
+pam2 &lt;-pam_dat %&gt;% scale %&gt;% pam(2)
+pam2</code></pre>
+<pre><code>## Medoids:
+##       ID days_covid      cases fatalities        age number_adopted
+## [1,] 441 -0.1693211 -0.7760857 -0.6245559 -0.3100603     -0.3680022
+## [2,] 792  0.7878941  0.9601939  1.0368125 -0.3100603      0.5459809
+##      total_number_adopted
+## [1,]           -0.6612629
+## [2,]            0.9311089
+## Clustering vector:
+##    [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##   [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##   [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [149] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [186] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [223] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [260] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [297] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [371] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [408] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [482] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [519] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [556] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [630] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [667] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [704] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [741] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [778] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [815] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [852] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [889] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [926] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [963] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+## [1000] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+## [1037] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+## [1074] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+## Objective function:
+##    build     swap 
+## 1.943880 1.610035 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<p>In the PAM statistics here, the 2 clusters are separated by medoids to minimize dissimilarity. The number of observations belonging to each cluster are represented by &quot;1&quot; and &quot;2&quot;.&quot;</p>
+<pre class="r"><code>#average silhouette width
+pam1 &lt;- pam_dat %&gt;% pam(k=2)
+plot(silhouette(pam1),border=NA)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The average silhouette width is 0.8, indicating a strong structure of clusters has been found from the data. Each cluster appears to have a good seperation from the other, so k=2 is best.</p>
+<pre class="r"><code>#Visualization
+
+library(GGally)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre class="r"><code>pam_dat %&gt;%mutate(cluster=as.factor(pam1$clustering)) %&gt;% ggpairs(columns= c(&quot;days_covid&quot;, &quot;cases&quot;, &quot;fatalities&quot;, &quot;age&quot;, &quot;number_adopted&quot;, &quot;total_number_adopted&quot;), aes(color=cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>The two clusters from the aforementioned variables have been visualized here. Looking at the days_covid and cases variables, it appears the distinction in the clusters happens about halfway through the period of the COVID pandemic. This is most apparent in the days_covid and cases plot in column 1. This could be due to the exponential increase in cases that occured at that time, and also due to the shift in adoption numbers. The shift and change in COVID cases and adoption numbers to increasing during the later summer months probably contributed to the formation of these clusters. It does not appear that age had significant relation to any of these variables, as the correlation is very low for all other variables and it does not display any noticable relationship in the plots. The strongest correlations in plots here are those of the COVID variables, with cases and fatalities have strong linear relation and a correlation of 0.995. The total_number_adopted, in its plots with both cases and fatalities, has a cluster on the left in red that is generally lower in numbers compared to the right cluster. The correlation between total_number_adopted and days_covid, cases, and fatalities are moderate in strength, with correlations of 0.538, 0.707, and 0.695 respectively. These results overall indicate the seperation of the clusters due to the progression of the pandemic, and how the number of cases exponentially increasing did not deter the increase in adoptions of animals.
+</p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

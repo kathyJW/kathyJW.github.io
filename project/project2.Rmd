@@ -1,0 +1,488 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+## Kathy Wang, kw28672
+
+
+###0. Introduction
+
+This project explores data from the Austin Animal Shelter from 2017-2019. The Austin Animal Center Shelter dataset was obtained by the Austin government's data portal (data.austintexas.gov), and contains the "outcomes of animals"(where they ended up) that were at the center. The date of the outcome, what the outcome was, and the name, ID, age, species, color, and sex of the animals are included. The entire dataset had 121,190 observations, but has been lessened down to 18,066 observations to only include animal outcomes from 2017-2019. Observations from 2020 have not been included in this project because of the effects of COVID-19 regulations and quarantine on the outcomes of animals from the shelter. Observations and trends from before 2020 will instead be the focus here.
+
+
+```{r}
+shelter_all <- read.csv("https://drive.google.com/uc?export=download&id=1278cBre_l36-M_WUj8Bd66xrUywn-E0b")
+#Tidy the shelter dataset. Drop the MonthYear column because it is a duplicate of DateTime. 
+#Remove all animals whose outcome was not in 2019
+shelter<- shelter_all %>%separate(DateTime, into= c("date", "time", "type"), sep=" ")  %>% select(-c(MonthYear, time, type)) %>% separate(date, into=c("month", "day","year"), convert=T)%>%filter(year==c(2017,2018,2019)) %>%arrange(year, month, day)
+#adjust the age column so that it shows only by months old. Needs different calculation for day and year observations. Used 30 days for a month.
+shelter<-shelter %>% separate(Age.upon.Outcome, into=c("age","type")) 
+shelter$age= as.double(shelter$age)
+shelter<- shelter%>%mutate (age= ifelse(type=="year"|type=="years", age*12, age)) %>% mutate (age= ifelse(type=="day"|type=="days", age/30, age)) %>% mutate (age= ifelse(type=="week"|type=="weeks", age/4, age)) %>%select(-("type"))
+
+shelter<-shelter%>%na.omit
+glimpse(shelter)
+
+```
+
+The data here has been cleaned and the "date" (of the outcome) variable has been split into month, day, and year. The ages of the animals have been adjusted to all be in month units.
+
+###1. MANOVA
+```{r}
+shelter<-shelter %>%filter(Outcome.Type!="")  %>% droplevels
+
+#month of outcome and age vs animal type
+man1<-manova(cbind(month,age)~Animal.Type, data=shelter)
+summary(man1)
+
+#univariate ANOVA
+summary.aov(man1) 
+
+shelter%>%group_by(Animal.Type)%>%na.omit%>%summarize(mean(month), mean(age))
+
+#t-tests
+pairwise.t.test(shelter$month, shelter$Animal.Type, p.adj="none")
+pairwise.t.test(shelter$age, shelter$Animal.Type, p.adj="none")
+
+#number of tests
+3+12
+#bonferroni correction
+1-((0.95)^15)
+bon<- 0.05/15
+bon
+
+#check assumptions
+library(rstatix)
+
+set.seed(1234)
+#random sample groups that are >5000 for the shapiro test
+adop_shelter <- shelter %>% filter(Animal.Type=="Dog") %>% sample_n(5000)
+trans_shelter <- shelter %>% filter(Animal.Type=="Cat") %>% sample_n(5000)
+
+temp_shelter<- shelter[!(shelter$Animal.Type=="Dog" | shelter$Animal.Type=="Cat"),]
+
+temp_shelter<- temp_shelter %>% full_join(adop_shelter) %>%full_join(trans_shelter)
+
+
+group <- temp_shelter$Animal.Type
+DVs <- temp_shelter %>% select(month, age)
+
+sapply(split(DVs,group), mshapiro_test)
+
+
+```
+
+One MANOVA test, two univariate ANOVA tests, and twelve pairwise t-tests were conducted on month and age variables across different animal types (Animal.Type) for a total of fifteen tests. MANOVA test was found to be significant and both univariate ANOVA tests as well (p<0.05). There is a proportion of 0.5367088 or about 53.67% probability of a type I error from these tests. With the bonferroni correction of 0.0033 used to adjust for multiple comparisons, the "Other" group appears to have a signifcant difference in the mean month of its outcome compared to the Bird, Cat, and Dog groups. The Cat group also appears to have a significant difference in the mean month from the Dog group. For ages, the Cat, Bird, and 'Other' groups have significant mean differences in age from the Dog group. 
+
+Since all p-values from the Shapiro-Wilk normality test are less than 0.05, there is no need to test homogeneity and the assumptions for MANOVA are met. Multivariate normality can be assumed to be met.
+
+
+###2. Randomization Test
+
+
+Null Hypothesis: The mean age of adopted cats is the same as that of adopted dogs.
+Alternative Hypothesis: The mean age of adopted cats is different from that of adopted dogs.
+
+```{r}
+#randomized test of mean differences in age of adopted dogs vs cats
+
+adopted_animals<- shelter %>% filter(Outcome.Type=="Adoption")
+
+cat_shelter<- adopted_animals %>%filter(Animal.Type=="Cat") %>% select(Animal.Type,age)
+
+dog_shelter<- adopted_animals %>%filter(Animal.Type=="Dog") %>% select(Animal.Type,age)
+
+cat_dog_shelter<- cat_shelter %>%full_join(dog_shelter)
+
+  
+
+#set seed so result will be consistent
+set.seed(1234)
+rand_dist<-vector()
+for(i in 1:5000){
+new<-data.frame(age=sample(cat_dog_shelter$age),Animal.Type=cat_dog_shelter$Animal.Type)
+rand_dist[i]<-mean(new[new$Animal.Type=="Dog",]$age)-
+mean(new[new$Animal.Type=="Cat",]$age)
+}
+
+
+
+obs_diff<- cat_dog_shelter%>%group_by(Animal.Type)%>%
+  summarize(means=mean(age))%>%summarize(`mean_diff`=diff(means)) %>%pull
+
+obs_diff
+
+
+mean(rand_dist>obs_diff | rand_dist < -(obs_diff)) 
+
+```
+A randomized t-test was conducted to find if there was a significant mean difference in age between adopted cats and dogs. The observed test statistic was 8.645459 months. Using this statistic compared to the randomized distribution, the probability of observing a mean difference like the one obtained in the random distribution is found to be 0.
+The resulting p-value is 0, indicating a strong mean difference and rejection of the null hypothesis.
+
+```{r}
+
+
+{hist(rand_dist,main="Randomized Distribution of Ages of Adopted Cats and Dogs",ylab="", xlim=c(-9,9)); abline(v = c(obs_diff,-obs_diff),col="red")}
+
+
+```
+
+###3. Linear Regression
+```{r}
+
+#Perform linear regression of age at adoption outcome dependent on sex and animal species
+adopted_animals<- shelter %>% filter(Outcome.Type=="Adoption")
+fit1<-lm(age~Animal.Type*Sex.upon.Outcome, data=adopted_animals) 
+summary(fit1)
+
+
+```
+
+The mean predicted age for adopted intact female birds is 13.5 months.
+Average adopted cats are predicted to be 10.225 months younger than the adopted intact female birds.
+Average adopted dogs are predicted to be 8.206 months older than the adopted intact female birds.
+Average animals in the 'Other' category are predicted to be 9.417 months older than adopted intact female birds.
+Average intact male animals are predicted to be 0.9 months younger than adopted intact female birds (referred to as the reference group from this point on). Average neutured male animals are predicted to be 8.944 months younger than the reference group. Average spayed female animals are predicted to be 1.125 months younger than the reference group. Animals with unknown sex are predicted to be 1.875 months younger than the reference.
+
+For the interactions, slope of the Sex.Upon.Outcome category unit for intact male cats is 0.198 greater than intact female birds at average age.
+Slope of the Sex.Upon.Outcome category unit for intact male dogs is 4.937 greater than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for intact male animals in the 'Other' group is 11.392 less than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for neutured male cats is 18.809 greater than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for neutured male dogs is 11.046 greater than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for spayed female cats is 14.206 greater than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for spayed female dogs is 1.279 month greater than intact female birds at average age. Slope of the Sex.Upon.Outcome category unit for animals in the 'Other' category with unknown sex is 11.442 less than intact female birds at average age. 
+
+
+
+```{r}
+library(interactions)
+#plot of categorical regression
+cat_plot(fit1, pred = Animal.Type, modx = Sex.upon.Outcome, main="Linear Regression of Age Dependent on Sex and Animal Type",
+              plot.points = TRUE, geom = "line",  interval = TRUE) + scale_y_continuous()
+
+#plot of categorical regression with geom_smooth
+cat_plot(fit1, pred = Animal.Type, modx = Sex.upon.Outcome, main="Linear Regression of Age Dependent on Sex and Animal Type",
+              plot.points = TRUE, geom = "line",  interval = TRUE)+ geom_smooth(method="lm") + scale_y_continuous()
+
+#Check assumptions of linearity, normality, and homoskedasticity
+resids<-fit1$residual
+ggplot()+geom_histogram(aes(resids),bins=10)+ggtitle("Residuals")
+
+fitted<-fit1$fitted.values
+ggplot()+geom_point(aes(fitted,resids)) +ggtitle("Residuals vs Fitted")
+
+
+resids<-fit1$residuals
+fitvals<-fit1$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red')+ggtitle("Homoskedasticity Check")
+
+#hypothesis test
+library(sandwich); library(lmtest)
+fit1<-lm(age~Animal.Type*Sex.upon.Outcome, data=adopted_animals) 
+bptest(fit1) 
+
+
+```
+The histogram of residuals does not appear normal, and is skewed right. 
+The variance of the residuals vs. fitted plot does not look constant, and there also appears to be a violation in homoskedasticity. The Breusch-Pagan test confirms that this model is heteroskedatic, with a p-value of 0.0033.
+
+
+
+```{r}
+
+#Regression with robust standard errors.
+summary(fit1)
+coeftest(fit1, vcov = vcovHC(fit1))
+```
+
+After applying robust standard errors, the standard errors appeared to have decreased for all groups and interactions and the t-values have increased. The p-value for most groups appears to have also decreased, making some coefficient relationships significant. The intercept, Cat, Dog, and interaction of Neutered Male Cats appear to have become significant, with p-values less than 0.05.
+
+The mean predicted age for adopted intact female birds is 13.5 months.
+Average adopted cats are predicted to be 10.225 months younger than the adopted intact female birds. Average adopted dogs are predicted to be 8.206 months older than the adopted intact female birds.
+Slope of the Sex.Upon.Outcome category unit for neutured male cats is 18.809 greater than intact female birds at average age.
+
+
+
+```{r}
+#proportion of variation in the outcome model explains
+age<- adopted_animals$age %>%na.omit
+(sum((age-mean(age))^2)-sum(fit1$residuals^2))/sum((age-mean(age))^2)
+
+
+
+```
+The model appears to explain 2.63% of the variation in the outcome. 
+
+
+###4. Regression with Bootstrap
+```{r}
+set.seed(1234)
+
+boot_dat<- sample_frac(adopted_animals, replace=T)
+
+samp_distn<-replicate(5000, {
+boot_dat <- sample_frac(adopted_animals, replace=T) #take bootstrap sample of rows
+fit <- lm(age~Animal.Type*Sex.upon.Outcome, data=boot_dat) #fit model on bootstrap sample
+coef(fit) #save coefs
+})
+## Estimated SEs
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+
+
+
+
+```
+The bootstrapped standard errors obtained from resampling observations appear smaller than the original standard errors and the robust standard errors. This would mean the data have the least variability using the bootstrapped standard errors compared to the robust or original standard errors.
+
+
+###5. Logistic Regression
+```{r}
+#species and age vs adopted or not
+shelter<-shelter %>% mutate(Adopted= ifelse(Outcome.Type=="Adoption", 1, 0))
+shelter<-shelter %>%na.omit
+
+fit<-glm(Adopted~Animal.Type+age, data=shelter, family="binomial")
+
+summary(fit)
+exp(coef(fit))
+
+
+prob <- predict(fit,type="response")
+#confusion matrix
+table(predict=as.numeric(prob>.5),truth=shelter$Adopted)%>%addmargins
+
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+class_diag(prob, shelter$Adopted)
+
+#density plot of logit
+
+shelter$logit<-predict(fit)
+shelter %>% mutate(Adopted=factor(Adopted,levels=c(1,0))) %>% 
+ggplot(aes(logit, fill=Adopted))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2) + ggtitle("Density Plot of Logits")
+
+#ROC and AUC
+library(plotROC) 
+ROCplot<-ggplot(shelter)+geom_roc(aes(d=Adopted,m=prob), n.cuts=0) + ggtitle("ROC of Adopted Animal and Age")
+ROCplot
+
+calc_auc(ROCplot)
+
+
+shelter<-shelter%>%select(-(logit))
+
+```
+Controlling for age, Birds compared to both dogs and cats are significantly different in their odds of being adopted. For every 1 month increase in age, the odds of a cat being adopted compared to birds significantly increases by 1.8366 times. For every 1 month increase in age, the odds of a dog being adopted compared to birds significantly increases by 2.1377762 times. For every 1 month increase in age, the odds of a an animal in the 'Other' category being adopted compared to birds significantly decreases by 0.2562213 times. Controlling for animal type, it appears that birds have a significantly less odds of being adopted with increasing age.
+
+The accuracy of the model is 0.5964, which indicates that about a proportion of 0.5964 of the predicted cases were correctly classified as being adopted. A proportion of 0.7563559 of the animals were correctly predicted as being adopted (sensitivity). A proportion of 0.454441 of the animals were correctly predicted as not being adopted (specificity). The precision of the model indicates that a proportion of 0.5517301 of the animals were classified as adopted who actually were adopted. The AUC of this model was 0.6212205, which indicates it is a poor predictor of the whether or not an animal is adopted based off its age and type of animal.
+
+The ROC curve displays the poor predictability of this model and the AUC of 0.6212205. It is almost even linear as a line, as the AUC is close to 0.5 and is the area under the curve. This ROC curve and density plot indicate that almost half of the predicted cases were not correctly predicted as adopted.
+
+
+###6. Logistic Regression (all variables)
+
+```{r}
+
+
+fit_all<-glm(Adopted~month+day+year+Animal.Type+Sex.upon.Outcome+age+Color, data=shelter, family="binomial")
+
+summary(fit_all)
+
+
+prob <- predict(fit_all,type="response")
+#confusion matrix
+table(predict=as.numeric(prob>.5),truth=shelter$Adopted)%>%addmargins
+
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+class_diag(prob, shelter$Adopted)
+
+
+
+```
+
+Using all other variables possible (month, day, year, Animal.Type, Sex.upon.Outcome, age, Color), the logistic regression model was created to predict if the animal was adopted dependendent on almost all other variables). (Unforunately Breed could not be included as a variable, as there were 1048 levels and it exceeded the capacity of my computer.)
+The accuracy of the model is 0.5964, which indicates that about a proportion of 0.8061552 of the predicted cases were correctly classified as being adopted. A proportion of 0.8846516 of the animals were correctly predicted as being adopted (sensitivity). A proportion of 0.0.7364681 of the animals were correctly predicted as not being adopted (specificity). The precision of the model indicates that a proportion of 0.7487547 of the animals were classified as adopted who actually were adopted. The AUC of this model was 0.8885119, which indicates it is a good predictor of the whether or not an animal is adopted based off the variables indicated prior.
+
+
+
+```{r}
+
+
+
+
+shelter<-shelter %>% na.omit
+
+#perform 10-fold CV
+set.seed(1234)
+k=10
+
+data<-shelter[sample(nrow(shelter)),] #randomly order rows
+folds<-cut(seq(1:nrow(shelter)),breaks=k,labels=F) #create fold
+
+
+diags<-NULL
+for(i in 1:k){
+train <- data[folds!=i,] #create training set (all but fold i)
+test <- data[folds==i,] #create test set (just fold i)
+
+#Account for levels in train that are not in test. Helps resolve error of new factor levels.
+uniquetrain <- unique( train$Color)
+test <- test[test$Color %in% uniquetrain,]
+
+
+truth <- test$Adopted #save truth labels from fold i
+
+
+fit<-glm(Adopted~month+day+year+Animal.Type+Sex.upon.Outcome+age+Color, data=train, family="binomial")
+
+
+
+
+
+probs <- predict(fit, newdata = test , type="response")
+
+
+diags<-rbind(diags,class_diag(probs,truth))
+}
+
+
+
+summarize_all(diags,mean)
+
+
+
+
+```
+
+After performing 10-fold CV on the model the AUC has decreased to 0.8731717 from 0.8886, which indicates possible overfitting. A LASSO needs to be conducted to better fit the model for predictions.
+
+
+
+```{r}
+#LASSO and lambda
+library(glmnet)
+set.seed(1234)
+
+#use fit_all calculated in glm above
+shelter_preds<-model.matrix(fit_all)
+shelter_preds<- shelter_preds[,-1]
+
+shelter_resp<- as.matrix(shelter$Adopted)
+
+cv <- cv.glmnet(shelter_preds,shelter_resp, family="binomial")
+
+lasso_fit<-glmnet(shelter_preds,shelter_resp,family="binomial",lambda=cv$lambda.1se)
+coef(lasso_fit)
+
+
+probab<- predict(lasso_fit, shelter_preds, type="response")
+class_diag(probab, shelter$Adopted)
+
+#confusion matrix
+table(prediction=as.numeric(probab>.5),truth=shelter$Adopted)
+
+```
+
+Using LASSO, the variables of month, year, Dog, all Sex.upon.Outcome groups, age, Green/Black, Tricolor/Brow. Brindle, White, and White/Cream Tabby were retained. A 10-fold CV will now be conducted using only those variables to create a better predicting model.
+
+
+```{r}
+#use 10-CV on LASSO variables
+
+set.seed(1234)
+k=10
+
+shelter_temp<- shelter %>% mutate(Dog = ifelse(shelter$Animal.Type=="Dog",1,0), green_black=ifelse(shelter$Color=="Green/Black",1,0), tri_brown_brindle = ifelse(shelter$Color=="Tricolor/Brown Brindle",1,0), white = ifelse(shelter$Color=="White",1,0) , white_cream_tabby = ifelse(shelter$Color=="White/Cream Tabby",1,0) )  
+
+data <- shelter_temp %>% sample_frac 
+folds <- ntile(1:nrow(data),n=10) 
+diags<-NULL
+for(i in 1:k){
+train <- data[folds!=i,] 
+test <- data[folds==i,] 
+truth <- test$Adopted
+fit <- glm(Adopted~month+year+Dog+Sex.upon.Outcome+age+green_black+tri_brown_brindle+white+white_cream_tabby, data=train, family="binomial")
+probs <- predict(fit, newdata=test, type="response")
+diags<-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags,mean)
+
+
+
+
+
+```
+
+The AUC of this model, 0.8801775, is greater than the 10-fold CV on the original sample above (0.8731717). It is slightly lower than the in-sample model's AUC of 0.8885 but it accounts for the overfitting, and still indicates good predicitability.

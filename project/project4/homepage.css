@@ -1,0 +1,311 @@
+#formsection {
+    background-color:aqua;
+}
+
+#flightsearchradio {
+    color: #1e8eb7;
+        text-align: center;
+        background-color: white;
+    }
+
+#flighttable {
+    width:100%;
+}
+
+#searchformbottom {
+    
+}
+
+.rowinfo {
+
+}
+
+table {
+    width: 100%;
+}
+
+.row {
+    text-align: justify;
+        -ms-text-justify: distribute-all-lines;
+        text-justify: distribute-all-lines;
+        width:100%;
+}
+
+.row>div {
+        width: 18%;
+    /*    height: 100px;*/
+        vertical-align: top;
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        background: white;
+    }
+
+#searchform {
+    background-color:cornflowerblue;
+    position: relative;
+    float: right;
+}
+
+#formtitle {
+/*    background-color: blueviolet;*/
+    position: relative;
+    float: left;
+    padding-left: 100px;
+    padding-top: 10px;
+}
+
+hr{
+    width:100%;
+    height: 3px;
+    background-color:#1e8eb7;
+    border-color:#1e8eb7;
+    margin:0;
+}
+
+
+
+body {
+    padding-top: 120px;
+    font-family: Arial, sans-serif;
+    margin:0;
+   
+}
+
+
+
+.img1{
+    display: block;
+    width: 100%;
+
+}
+
+/*add hover darken effect*/
+.dark{
+    transition: filter 1s ease;
+    filter: brightness(0.5);
+}
+
+
+/*^add hover darken effect*/
+
+.desc{
+
+    position: relative;
+    text-align: center;
+    color: white;
+    margin:0;
+    
+}
+
+.desc2{
+    float:left;
+
+    position: relative;
+    text-align: center;
+    color: white;
+    margin:0;
+    padding:0;
+    width: 50%;
+
+}
+
+
+.header{
+    font-size: 35pt;
+}
+
+.centered {
+    width:60%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+ .centered2 {
+    width:70%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+ .text1{
+    line-height: 25pt;
+    font-size:17pt;
+  }
+
+
+.header2{
+    font-size: 33pt;
+}
+.text2{
+    line-height: 20pt;
+    font-size:15pt;
+  }
+
+#footer{
+    width: 100%;
+    margin-top: 0px;
+    color:white;
+    font-size:12pt;
+    background-color: #1e8eb7;
+}
+
+/* Navigation */
+
+html{
+    margin-top: 0;
+    }
+
+.top {
+    z-index: 97;
+    background-color: #1e8eb7;
+    overflow: hidden;
+     position: fixed;
+    width: 100%;
+    top: 0;
+    left:0;
+     padding: 10px 10px; /* Large padding which will shrink on scroll (using JS) */
+   transition: 0.4s; /* Adds a transition effect when the padding is decreased */
+    }
+
+.rightlink a {
+    
+    float: left;
+      text-align: center;
+    color: white;
+      padding: 40px 9px;
+    text-decoration: none;
+   
+      font-size: 17px;
+    width: 15%;
+    }
+
+    .rightlink a:hover {
+        color:white;
+        background-color:#47acd1;
+    }
+
+#logo{
+    float: left;
+     height: 100px;
+     width: 200px}
+    
+
+#homeform {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+  /* Search function */  
+#homeform {
+    color: #1e8eb7;
+        background-color: white;
+    }
+    
+#homeformsearch {
+    color: #1e8eb7;
+        background-color: white;
+    }
+    
+#fieldinput {
+
+        text-align: justify;
+        -ms-text-justify: distribute-all-lines;
+        text-justify: distribute-all-lines;
+        width:100%;
+    }
+    
+#fieldinput>div {
+    /*    width: 100px;*/
+    /*    height: 100px;*/
+        vertical-align: top;
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        background: white;
+    }
+    
+h3 {  
+     color:#1e8eb7;
+        text-align: center;
+        background-color: white;
+    }
+    
+button {
+    
+        margin:auto;
+      display:block;
+    }
+    
+#homeradio {
+    color: #1e8eb7;
+        text-align: center;
+        background-color: white;
+    }
+    
+#homebuttonsearch {
+    color: #1e8eb7;
+        background-color: white;
+    }
+    
+  /* Destinations */  
+
+  h1{
+    margin:20px;
+    color:#1e8eb7;
+
+  }
+
+.destinationheader{
+    color:white;
+    padding:23px;
+    font-size: 15pt;
+    background-color:#47acd1;
+
+}
+
+.destinationbody{
+    text-align:center;
+}
+
+
+.destimg{
+    float:left;
+
+    position: relative;
+    text-align: center;
+    color: white;
+    margin:0;
+    padding:0;
+    width: 33.33%;
+
+}
+
+
+.text3{
+    line-height: 5pt;
+    font-size:15pt;
+  }
+
+ button{
+      background-color: #1e8eb7;
+      color: white
+  }
+
+.profile table{
+width:25%;
+padding:15px;
+
+}
+
+.destinationlinks{
+
+    color: #1e8eb7;
+    font-size: 13pt;
+    line-height:25pt;
+
+}

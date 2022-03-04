@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, sans-serif;
+    margin:0;
+   
+}
+
+
+h2{
+    color:white;
+    padding:23px;
+    font-size: 15pt;
+    background-color:#47acd1;
+
+}
+
+    
+
+button{
+
+    background-color: #1e8eb7;
+    color: white;
+}
+table, th, td {
+
+    padding:8px;
+  }
+
+  td,tr{
+      color: #1e8eb7;
+      width:40px;
+  }
+
+  a:link {
+    color: #1e8eb7;
+    background-color: transparent;
+    padding:15px;
+  }
