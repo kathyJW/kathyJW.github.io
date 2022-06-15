@@ -1,0 +1,51 @@
+body {
+    margin:auto;
+    max-width: 1200px;
+    background-color:black;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color:black;
+}
+
+div{
+    padding: 10px;
+    align-self: center;
+}
+
+span{
+    text-align: center;
+    display:block;
+}
+
+#title{
+    color: white;
+    text-align: center;
+    font-size: 52px;
+    padding: 15px;
+    
+}
+#container {
+    background-color: white;
+    padding: 40px;
+    min-width: 1200px;
+    max-width: 1200px;
+    min-height: 1400px;
+}
+
+#vis2 {
+    float:left;
+    width: 40%;
+    margin-right: 30px;
+}
+
+#vis3 {
+    float:left;
+    width: 50%;
+    padding-right: 20px;
+}
+
+.footer {
+    text-align: center;
+    display:block;
+    font-size: 7;
+    color:white;
+}
